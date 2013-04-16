@@ -9,3 +9,6 @@ class Memory:
             return self._data[address]
         elif operation == 1:
             self._data[address] = data
+
+    def __len__(self):
+        return len(self._data)

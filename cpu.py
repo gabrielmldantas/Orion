@@ -73,12 +73,14 @@ class ControlUnit:
         while not self._cpu.halt:
             word = self._fetch_word()
             address = self._cpu.instruction_decoder.decode(word)
+            yield {'Palavra': hex(word), 'Endereço': hex(address)}
             if self._is_ula_instruction(self._cpu.ir):
                 self._cpu.ula.execute(self._cpu.ir)
             else:
                 self._cpu.execution_unit.execute(self._cpu.ir, address)
             if not self._verify_jump(self._cpu.ir, address):
                 self._cpu.pc += 1
+            yield {'PC': hex(self._cpu.pc)}
 
     def _fetch_word(self):
         return self._cpu.bus.transfer(self._cpu.pc, None, 0)
@@ -116,5 +118,5 @@ class Cpu:
         self.sts = 0
 
     def start(self):
-        self.control_unit.execution_cycle()
+        return self.control_unit.execution_cycle()
 
