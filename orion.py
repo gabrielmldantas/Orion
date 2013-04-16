@@ -1,7 +1,7 @@
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from gui import Ui_window
-from util import load_program
+from util import load_program, instrucoes
 from bus import Bus
 from memory import Memory
 from cpu import Cpu
@@ -36,6 +36,7 @@ class Orion(QWidget):
             self.ui.lineEditCX.setText(hex(self.cpu.cx))
             self.ui.lineEditDX.setText(hex(self.cpu.dx))
             self.ui.lineEditSTS.setText(bin(self.cpu.sts))
+            self.ui.lineEditInstruction.setText(instrucoes[self.cpu.ir])
             self._select_row(hex(self.cpu.pc))
         except StopIteration:
             QMessageBox.information(self, "Orion", "Execução Finalizada")

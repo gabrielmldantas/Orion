@@ -20,6 +20,8 @@ class Ula:
 
     def _sub(self):
         self.ac = self.ah - self.bh
+        if self.ac < 0:
+            self._cpu.sts |= 0b0000000000000100
 
     def _cmp(self):
         if self.ah != self.bh:
@@ -76,6 +78,7 @@ class ControlUnit:
             address = self._cpu.instruction_decoder.decode(word)
             if self._is_ula_instruction(self._cpu.ir):
                 yield "Execução na ULA"
+				# Colocar os valores de AX na ULA
                 self._cpu.ula.execute(self._cpu.ir)
             else:
                 yield "Execução na UE"
