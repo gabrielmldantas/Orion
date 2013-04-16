@@ -1,4 +1,5 @@
 from PyQt4.QtGui import *
+from PyQt4.QtCore import *
 from gui import Ui_window
 from util import load_program
 from bus import Bus
@@ -24,6 +25,7 @@ class Orion(QWidget):
             info = self.gen.send(None)
             self.ui.lineEditPC.setText(hex(self.cpu.pc))
             self.ui.lineEditIR.setText(hex(self.cpu.ir))
+            self._select_row(hex(self.cpu.pc))
         except StopIteration:
             QMessageBox.information(self, "Orion", "Execução Finalizada")
 
@@ -42,6 +44,11 @@ class Orion(QWidget):
             item_palavra = QTableWidgetItem(data)
             self.ui.tableWidget.setItem(i-1, 0, item_endereco)
             self.ui.tableWidget.setItem(i-1, 1, item_palavra)
+
+    def _select_row(self, pc):
+        item = self.ui.tableWidget.findItems(pc, Qt.MatchExactly)[0]
+        self.ui.tableWidget.selectRow(item.row())
+        self.ui.tableWidget.scrollToItem(item)
 
 if __name__ == '__main__':
     app = QApplication([])
