@@ -7,10 +7,11 @@ def load_program(memory):
 instrucoes = {
     0x1: "ADD",
     0x2: "SUB",
-    0x3: "MOV",
+    0x3: "MOVR",
     0x4: "JMP",
     0x5: "HLT",
     0x6: "JNE",
     0x7: "JE",
-    0x0: "NOP"
+    0x0: "NOP",
+    0x8: "MOVM"
 }

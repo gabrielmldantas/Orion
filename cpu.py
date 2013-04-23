@@ -22,7 +22,7 @@ class Ula:
         # complemento de 2
         self.ac = self.ah + ~self.bh + 1
         if self.ac < 0:
-            self._cpu.sts |= 0b0000000000000100
+            self._cpu.sts |= 0b0000000000001000
 
     def _cmp(self):
         if self.ah != self.bh:
@@ -53,7 +53,9 @@ class ExecutionUnit:
         elif opcode == 0x0:
             self._nop()
         elif opcode == 0x3:
-            self._mov(address)
+            self._movr(address)
+        elif opcode == 0x8:
+            self._movm(address)
 
     def _jmp(self, address):
         self._cpu.pc = address
@@ -64,8 +66,33 @@ class ExecutionUnit:
     def _nop(self):
        pass
 
-    def _mov(self, address):
-       print("MOV", address)
+    def _movr(self, address):
+        register = (address & 0xF00) >> 8
+        data = self._cpu.bus.transfer(address & 0x0FF, None, 0)
+        if register == 0x1:
+            self._cpu.ax = data
+        elif register == 0x2:
+            self._cpu.bx = data
+        elif register == 0x3:
+            self._cpu.cx = data
+        elif register == 0x4:
+            self._cpu.dx = data
+
+    def _movm(self, address):
+        register = (address & 0xF00) >> 8
+        mem_address = address & 0x0FF
+        if register == 0x1:
+            data = self._cpu.ax
+        elif register == 0x2:
+            data = self._cpu.bx
+        elif register == 0x3:
+            data = self._cpu.cx
+        elif register == 0x4:
+            data = self._cpu.dx
+        elif register == 0x5:
+            data = self._cpu.ula.ac
+
+        self._cpu.bus.transfer(mem_address, data, 1)
 
 
 class ControlUnit:
@@ -79,7 +106,8 @@ class ControlUnit:
             address = self._cpu.instruction_decoder.decode(word)
             if self._is_ula_instruction(self._cpu.ir):
                 yield "Execução na ULA"
-				# Colocar os valores de AX na ULA
+                self._cpu.ula.ah = self._cpu.ax
+                self._cpu.ula.bh = self._cpu.bx
                 self._cpu.ula.execute(self._cpu.ir)
             else:
                 yield "Execução na UE"
