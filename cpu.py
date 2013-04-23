@@ -19,7 +19,8 @@ class Ula:
         self.ac = self.ah + self.bh
 
     def _sub(self):
-        self.ac = self.ah - self.bh
+        # complemento de 2
+        self.ac = self.ah + ~self.bh + 1
         if self.ac < 0:
             self._cpu.sts |= 0b0000000000000100
 
