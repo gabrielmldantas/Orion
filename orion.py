@@ -13,11 +13,11 @@ class Orion(QWidget):
         self.ui = Ui_window()
         self.ui.setupUi(self)
         self.ui.tableWidget.setHorizontalHeaderLabels(['Endereço', 'Palavra'])
-        memory = Memory()
-        load_program(memory)
-        self.ui.tableWidget.setRowCount(len(memory))
-        self._init_cpu(memory)
-        self._fill_table(memory)
+        self._memory = Memory()
+        load_program(self._memory)
+        self.ui.tableWidget.setRowCount(len(self._memory))
+        self._init_cpu()
+        self._fill_table()
         self._connect_edits()
         self.ui.pushButtonNext.clicked.connect(self.next_cpu)
         self.ui.tableWidget.itemChanged.connect(self._update_word)
@@ -37,26 +37,36 @@ class Orion(QWidget):
             self.ui.lineEditDX.setText(hex(self.cpu.dx))
             self.ui.lineEditSTS.setText(bin(self.cpu.sts))
             self.ui.lineEditInstruction.setText(instrucoes[self.cpu.ir])
+            if self.cpu.ir == 0x8:
+                self._update_table()
             self._select_row(hex(self.cpu.pc))
         except StopIteration:
             QMessageBox.information(self, "Orion", "Execução Finalizada")
 
-    def _init_cpu(self, memory):
-        bus = Bus(memory)
+    def _init_cpu(self):
+        bus = Bus(self._memory)
         self.cpu = Cpu(bus)
         self.cpu.pc = 0x200
         self.gen = self.cpu.start()
 
-    def _fill_table(self, memory):
-        for i in range(1, len(memory)):
+    def _fill_table(self):
+        for i in range(1, len(self._memory)):
             item_endereco = QTableWidgetItem(hex(i))
             item_endereco.setFlags(item_endereco.flags() ^ Qt.ItemIsEditable)
-            data = memory.operate(i, None, 0)
+            data = self._memory.operate(i, None, 0)
             if data is not None:
                 data = hex(data)
             item_palavra = QTableWidgetItem(data)
             self.ui.tableWidget.setItem(i-1, 0, item_endereco)
             self.ui.tableWidget.setItem(i-1, 1, item_palavra)
+
+    def _update_table(self):
+        for i in range(1, len(self._memory)):
+            item_palavra = self.ui.tableWidget.item(i-1, 1)
+            data = self._memory.operate(i, None, 0)
+            if data is not None:
+                data = hex(data)
+            item_palavra.setText(data)
 
     def _select_row(self, pc):
         item = self.ui.tableWidget.findItems(pc, Qt.MatchExactly)[0]

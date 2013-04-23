@@ -14,6 +14,12 @@ class Ula:
             self._sub()
         elif opcode in (0x6, 0x7):
             self._cmp()
+        elif opcode == 0x9:
+            self._and()
+        elif opcode == 0xA:
+            self._or()
+        elif opcode == 0xB:
+            self._mul()
 
     def _add(self):
         self.ac = self.ah + self.bh
@@ -29,6 +35,15 @@ class Ula:
             self._cpu.sts |= 0x0001
         else:
             self._cpu.sts |= 0x0000
+
+    def _and(self):
+        self.ac = self.ah & self.bh
+
+    def _or(self):
+        self.ac = self.ah | self.bh
+
+    def _mul(self):
+        self.ac = self.ah * self.bh
 
 class InstructionDecoder:
     def __init__(self, cpu):
@@ -91,7 +106,6 @@ class ExecutionUnit:
             data = self._cpu.dx
         elif register == 0x5:
             data = self._cpu.ula.ac
-
         self._cpu.bus.transfer(mem_address, data, 1)
 
 
@@ -109,6 +123,8 @@ class ControlUnit:
                 self._cpu.ula.ah = self._cpu.ax
                 self._cpu.ula.bh = self._cpu.bx
                 self._cpu.ula.execute(self._cpu.ir)
+                if self._cpu.ir in (0x1, 0x2, 0x9, 0xA, 0xB):
+                    self._cpu.cx = self._cpu.ula.ac
             else:
                 yield "Execução na UE"
                 self._cpu.execution_unit.execute(self._cpu.ir, address)

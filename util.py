@@ -13,5 +13,8 @@ instrucoes = {
     0x6: "JNE",
     0x7: "JE",
     0x0: "NOP",
-    0x8: "MOVM"
+    0x8: "MOVM",
+    0x9: "AND",
+    0xA: "OR",
+    0xB: "MUL"
 }
